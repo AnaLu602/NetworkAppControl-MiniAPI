@@ -100,8 +100,71 @@ async def start_test(configId: int, duration: int, nef_ip: str, nef_port: str, n
 
     #Acquisition of UE location
 
-    requests.post(nef_base_url + f"api/v1/UEs/{202010000000000}")
-    
+    requests.get(nef_base_url + f"/api/v1/UEs", headers=headers, params={"supi":"202010000000001"})
+
+    #Acquisition of UE handover event
+
+    #Acquisition of UE Received Signal Strength Indicator (RSSI) information
+    #RSSI=Serving Cell Power + Neighbour Co-Channel Cells Power + Thermal Noise https://www.techplayon.com/rssi/
+
+    #Start loop
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/start-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
+
+    #Acquisition of serving cell information
+
+    requests.get(nef_base_url + f"/api/v1/UEs/{202010000000001}/serving_cell", headers=headers, params={"supi":"202010000000001"})
+
+    #Acquisition of UE Reference Signal Received Power (RSRP) information
+
+    requests.get(nef_base_url + f"/api/v1/UEs/{202010000000001}/rsrps", headers=headers, params={"supi":"202010000000001"})
+
+    #Acquisition of UE path loss
+
+    requests.get(nef_base_url + f"/api/v1/UEs/{202010000000001}/path_losses", headers=headers, params={"supi":"202010000000001"})
+
+    #End Loop
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
+
+    #Acquisition of QoS sustainability - qos subscription
+
+    qos_payload = {
+        "ipv4Addr": "10.0.0.1",
+        "notificationDestination": "http://localhost:80/api/v1/utils/session-with-qos/callback",
+        "snssai": {
+            "sst": 1,
+            "sd": "000001"
+        },
+        "dnn": "province1.mnc01.mcc202.gprs",
+        "qosReference": 9,
+        "altQoSReferences": [
+            0
+        ],
+        "usageThreshold": {
+            "duration": 0,
+            "totalVolume": 0,
+            "downlinkVolume": 0,
+            "uplinkVolume": 0
+        },
+        "qosMonInfo": {
+            "reqQosMonParams": [
+            "DOWNLINK"
+            ],
+            "repFreqs": [
+            "EVENT_TRIGGERED"
+            ],
+            "latThreshDl": 0,
+            "latThreshUl": 0,
+            "latThreshRp": 0,
+            "waitTime": 0,
+            "repPeriod": 0
+        }
+    }
+
+    requests.post(nef_base_url + "/nef/api/v1/3gpp-as-session-with-qos/v1/netapp/subscriptions",
+                headers=headers, params={"scsAsId":"netapp"}, data=json.dumps(qos_payload))
+
     return JSONResponse(content="Done", status_code=200)
      
 
