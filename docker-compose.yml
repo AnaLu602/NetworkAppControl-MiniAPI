@@ -1,0 +1,12 @@
+#sudo docker build -t backend -f Dockerfile.api .
+
+version: "3"
+services:
+    networkapp-miniapi:
+        container_name: networkapp-miniapi
+        image: networkapp-miniapi
+        build:
+          context: .
+          dockerfile: Dockerfile.api
+        ports:
+            - "3001:3001"
