@@ -102,7 +102,6 @@ async def start_test(configId: int, duration: int, nef_ip: str, nef_port: str, n
 
     requests.get(nef_base_url + f"/api/v1/UEs", headers=headers, params={"supi":"202010000000001"})
 
-    #Acquisition of UE handover event
 
     #Acquisition of UE Received Signal Strength Indicator (RSSI) information
     #RSSI=Serving Cell Power + Neighbour Co-Channel Cells Power + Thermal Noise https://www.techplayon.com/rssi/
@@ -164,6 +163,10 @@ async def start_test(configId: int, duration: int, nef_ip: str, nef_port: str, n
 
     requests.post(nef_base_url + "/nef/api/v1/3gpp-as-session-with-qos/v1/netapp/subscriptions",
                 headers=headers, params={"scsAsId":"netapp"}, data=json.dumps(qos_payload))
+
+    #Acquisition of UE handover event
+    
+    requests.get(nef_base_url + f"/api/v1/UEs/{202010000000002}/handovers", headers=headers, params={"supi":"202010000000002"})
 
     return JSONResponse(content="Done", status_code=200)
      
