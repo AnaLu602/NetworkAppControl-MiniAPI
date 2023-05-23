@@ -86,7 +86,7 @@ async def start_test(configId: int, duration: int, nef_ip: str, nef_port: str, n
     headers["Content-Type"] = "application/json"
 
     monitoring_payload = {
-        "externalId": "123456789@domain.com",
+        "externalId": "10001@domain.com",
         "notificationDestination": "http://localhost:80/api/v1/utils/monitoring/callback",
         "monitoringType": "LOCATION_REPORTING",
         "maximumNumberOfReports": 1,
