@@ -66,8 +66,40 @@ async def config_stream(config: schemas.StreamConfig,
     return stream.id
 
 
-@app.post("/start/template")
-async def start_test_template(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+#Login - pass
+@app.post("/start/1/1")
+async def start_test_1_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+    data = {
+        "grant_type": "",
+        "username": user_pass["username"],
+        "password": user_pass["password"],
+        "scope": "",
+        "client_id": "",
+        "client_secret": ""
+    }
+
+    resp = requests.post(url, headers=headers, data=data)
+
+    resp_content = resp.json()
+
+    token = resp_content["access_token"]
+
+#Create Monitoring Subscription - pass
+@app.post("/start/1/2")
+async def start_test_1_2(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
     #NEF Login
     nef_base_url = f"http://{nef_ip}:{nef_port}"
@@ -98,15 +130,45 @@ async def start_test_template(configId: int, duration: int, nef_ip: str, nef_por
     requests.post(nef_base_url + "/nef/api/v1/3gpp-monitoring-event/v1/netapp/subscriptions",
                 headers=headers, data=json.dumps(monitoring_payload))
 
-    #Acquisition of UE location
+#Get UE Location Acquisiton - pass
+@app.post("/start/1/3")
+async def start_test_1_3(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
 
     requests.get(nef_base_url + f"/api/v1/UEs", headers=headers, params={"supi":"202010000000001"})
 
+#Get UE Serving Cell - pass
+@app.post("/start/1/4")
+async def start_test_1_4(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
-    #Acquisition of UE Received Signal Strength Indicator (RSSI) information
-    #RSSI=Serving Cell Power + Neighbour Co-Channel Cells Power + Thermal Noise https://www.techplayon.com/rssi/
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
 
-    #Start loop
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
 
     requests.post(nef_base_url + f"/api/v1/ue_movement/start-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
 
@@ -114,20 +176,28 @@ async def start_test_template(configId: int, duration: int, nef_ip: str, nef_por
 
     requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/serving_cell", headers=headers, params={"supi":"202010000000001"})
 
-    #Acquisition of UE Reference Signal Received Power (RSRP) information
-
-    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/rsrps", headers=headers, params={"supi":"202010000000001"})
-
-    #Acquisition of UE path loss
-
-    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/path_losses", headers=headers, params={"supi":"202010000000001"})
-
-    #End Loop
-
     requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
 
-    #Acquisition of QoS sustainability - qos subscription
+#Create QoS Subscription
+@app.post("/start/1/5")
+async def start_test_1_5(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    #Acquisition of QoS sustainability - qos subscription
     qos_payload = {
         "ipv4Addr": "10.0.0.1",
         "notificationDestination": "http://localhost:80/api/v1/utils/session-with-qos/callback",
@@ -164,78 +234,6 @@ async def start_test_template(configId: int, duration: int, nef_ip: str, nef_por
     requests.post(nef_base_url + "/nef/api/v1/3gpp-as-session-with-qos/v1/netapp/subscriptions",
                 headers=headers, params={"scsAsId":"netapp"}, data=json.dumps(qos_payload))
 
-    #Acquisition of UE handover event
-    
-    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000002}/handovers", headers=headers, params={"supi":"202010000000002"})
-
-    return JSONResponse(content="Done", status_code=200)
-
-
-
-#Login - Right
-@app.post("/start/1/1")
-async def start_test_1_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
-
-    #NEF Login
-    nef_base_url = f"http://{nef_ip}:{nef_port}"
-
-    user_pass = {
-        "username": nef_username,
-        "password": nef_pass
-    }
-
-    headers = CaseInsensitiveDict()
-    headers["accept"] = "application/json"
-    headers["Content-Type"] = "application/x-www-form-urlencoded"
-
-    data = {
-        "grant_type": "",
-        "username": user_pass["username"],
-        "password": user_pass["password"],
-        "scope": "",
-        "client_id": "",
-        "client_secret": ""
-    }
-
-    resp = requests.post(url, headers=headers, data=data)
-
-    resp_content = resp.json()
-
-    token = resp_content["access_token"]
-
-#Create Monitoring Subscription - Right
-@app.post("/start/1/2")
-async def start_test_1_2(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
-
-    #NEF Login
-    nef_base_url = f"http://{nef_ip}:{nef_port}"
-
-    user_pass = {
-        "username": nef_username,
-        "password": nef_pass
-    }
-
-    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
-
-    #NEF Monitoring Subscription
-    headers = CaseInsensitiveDict()
-    headers["accept"] = "application/json"
-    headers["Authorization"] = "Bearer " + key
-    headers["Content-Type"] = "application/json"
-
-    monitoring_payload = {
-        "externalId": "10001@domain.com",
-        "notificationDestination": "http://localhost:80/api/v1/utils/monitoring/callback",
-        "monitoringType": "LOCATION_REPORTING",
-        "maximumNumberOfReports": 1,
-        "monitorExpireTime": "2023-03-09T13:18:19.495000+00:00",
-        "maximumDetectionTime": 1,
-        "reachabilityType": "DATA"
-    }
-
-    requests.post(nef_base_url + "/nef/api/v1/3gpp-monitoring-event/v1/netapp/subscriptions",
-                headers=headers, data=json.dumps(monitoring_payload))
-
 #Login - pass wrong credentials
 @app.post("/start/2/1")
 async def start_test_2_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
@@ -266,6 +264,95 @@ async def start_test_2_1(configId: int, duration: int, nef_ip: str, nef_port: st
     resp_content = resp.json()
 
     token = resp_content["access_token"]
+
+#Create Monitoring Subscription - fail login wrong credentials
+@app.post("/start/2/2")
+async def start_test_2_2(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    #NEF Monitoring Subscription
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    monitoring_payload = {
+        "externalId": "10001@domain.com",
+        "notificationDestination": "http://localhost:80/api/v1/utils/monitoring/callback",
+        "monitoringType": "LOCATION_REPORTING",
+        "maximumNumberOfReports": 1,
+        "monitorExpireTime": "2023-03-09T13:18:19.495000+00:00",
+        "maximumDetectionTime": 1,
+        "reachabilityType": "DATA"
+    }
+
+    requests.post(nef_base_url + "/nef/api/v1/3gpp-monitoring-event/v1/netapp/subscriptions",
+                headers=headers, data=json.dumps(monitoring_payload))
+
+#Create QoS Subscription - fail login wrong credentials
+@app.post("/start/2/3")
+async def start_test_2_3(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    #Acquisition of QoS sustainability - qos subscription
+    qos_payload = {
+        "ipv4Addr": "10.0.0.1",
+        "notificationDestination": "http://localhost:80/api/v1/utils/session-with-qos/callback",
+        "snssai": {
+            "sst": 1,
+            "sd": "000001"
+        },
+        "dnn": "province1.mnc01.mcc202.gprs",
+        "qosReference": 9,
+        "altQoSReferences": [
+            0
+        ],
+        "usageThreshold": {
+            "duration": 0,
+            "totalVolume": 0,
+            "downlinkVolume": 0,
+            "uplinkVolume": 0
+        },
+        "qosMonInfo": {
+            "reqQosMonParams": [
+            "DOWNLINK"
+            ],
+            "repFreqs": [
+            "EVENT_TRIGGERED"
+            ],
+            "latThreshDl": 0,
+            "latThreshUl": 0,
+            "latThreshRp": 0,
+            "waitTime": 0,
+            "repPeriod": 0
+        }
+    }
+
+    requests.post(nef_base_url + "/nef/api/v1/3gpp-as-session-with-qos/v1/netapp/subscriptions",
+                headers=headers, params={"scsAsId":"netapp"}, data=json.dumps(qos_payload))
 
 #Login - wrong implementation
 @app.post("/start/3/1")
@@ -298,12 +385,182 @@ async def start_test_3_1(configId: int, duration: int, nef_ip: str, nef_port: st
 
     token = resp_content["access_token"]
 
-#Login - didnt login
+#Create Monitoring Subscription - fail login doesnt work
+@app.post("/start/3/2")
+async def start_test_3_2(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_pass,
+        "password": nef_username
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    #NEF Monitoring Subscription
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    monitoring_payload = {
+        "externalId": "10001@domain.com",
+        "notificationDestination": "http://localhost:80/api/v1/utils/monitoring/callback",
+        "monitoringType": "LOCATION_REPORTING",
+        "maximumNumberOfReports": 1,
+        "monitorExpireTime": "2023-03-09T13:18:19.495000+00:00",
+        "maximumDetectionTime": 1,
+        "reachabilityType": "DATA"
+    }
+
+    requests.post(nef_base_url + "/nef/api/v1/3gpp-monitoring-event/v1/netapp/subscriptions",
+                headers=headers, data=json.dumps(monitoring_payload))
+
+#Get UEs Location Acquisiton - fail login doesnt work
+@app.post("/start/3/3")
+async def start_test_3_3(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_pass,
+        "password": nef_username
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    requests.get(nef_base_url + f"/api/v1/UEs", headers=headers, params={"supi":"202010000000001"})
+
+#Get UE Path Losses - fail login doesnt work
+@app.post("/start/3/4")
+async def start_test_3_4(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_pass,
+        "password": nef_username
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/start-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
+
+    #Acquisition of UE Path Losses information
+
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/path_losses", headers=headers, params={"supi":"202010000000001"})
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
+
+#Create Monitoring Subscription - fail login doesnt exist
 @app.post("/start/4/1")
 async def start_test_4_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
-    pass
 
-#Login - right
+    #NEF Monitoring Subscription
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/json"
+
+    monitoring_payload = {
+        "externalId": "10001@domain.com",
+        "notificationDestination": "http://localhost:80/api/v1/utils/monitoring/callback",
+        "monitoringType": "LOCATION_REPORTING",
+        "maximumNumberOfReports": 1,
+        "monitorExpireTime": "2023-03-09T13:18:19.495000+00:00",
+        "maximumDetectionTime": 1,
+        "reachabilityType": "DATA"
+    }
+
+    requests.post(nef_base_url + "/nef/api/v1/3gpp-monitoring-event/v1/netapp/subscriptions",
+                headers=headers, data=json.dumps(monitoring_payload))
+
+#Get UE Serving Cell - fail login doesnt exist
+@app.post("/start/4/2")
+async def start_test_4_2(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/json"
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/start-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
+
+    #Acquisition of serving cell information
+
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/serving_cell", headers=headers, params={"supi":"202010000000001"})
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
+
+#Get UE Handovers - fail login doesnt exist
+@app.post("/start/4/3")
+async def start_test_4_3(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/json"
+
+    #Acquisition of UE handover event
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000002}/handovers", headers=headers, params={"supi":"202010000000002"})
+
+#Create QoS Subscription - fail login doesnt exist
+@app.post("/start/4/4")
+async def start_test_4_4(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/json"
+
+    #Acquisition of QoS sustainability - qos subscription
+    qos_payload = {
+        "ipv4Addr": "10.0.0.1",
+        "notificationDestination": "http://localhost:80/api/v1/utils/session-with-qos/callback",
+        "snssai": {
+            "sst": 1,
+            "sd": "000001"
+        },
+        "dnn": "province1.mnc01.mcc202.gprs",
+        "qosReference": 9,
+        "altQoSReferences": [
+            0
+        ],
+        "usageThreshold": {
+            "duration": 0,
+            "totalVolume": 0,
+            "downlinkVolume": 0,
+            "uplinkVolume": 0
+        },
+        "qosMonInfo": {
+            "reqQosMonParams": [
+            "DOWNLINK"
+            ],
+            "repFreqs": [
+            "EVENT_TRIGGERED"
+            ],
+            "latThreshDl": 0,
+            "latThreshUl": 0,
+            "latThreshRp": 0,
+            "waitTime": 0,
+            "repPeriod": 0
+        }
+    }
+
+    requests.post(nef_base_url + "/nef/api/v1/3gpp-as-session-with-qos/v1/netapp/subscriptions",
+                headers=headers, params={"scsAsId":"netapp"}, data=json.dumps(qos_payload))
+
+#Login - pass
 @app.post("/start/5/1")
 async def start_test_5_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
@@ -334,9 +591,9 @@ async def start_test_5_1(configId: int, duration: int, nef_ip: str, nef_port: st
 
     token = resp_content["access_token"]
 
-#Login - wrong method used
-@app.post("/start/6/1")
-async def start_test_6_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+#Get UEs Location Acquisiton - pass
+@app.post("/start/5/2")
+async def start_test_5_2(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
     #NEF Login
     nef_base_url = f"http://{nef_ip}:{nef_port}"
@@ -346,28 +603,118 @@ async def start_test_6_1(configId: int, duration: int, nef_ip: str, nef_port: st
         "password": nef_pass
     }
 
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
     headers = CaseInsensitiveDict()
     headers["accept"] = "application/json"
-    headers["Content-Type"] = "application/x-www-form-urlencoded"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
 
-    data = {
-        "grant_type": "",
-        "username": user_pass["username"],
-        "password": user_pass["password"],
-        "scope": "",
-        "client_id": "",
-        "client_secret": ""
+    requests.get(nef_base_url + f"/api/v1/UEs", headers=headers, params={"supi":"202010000000001"})
+
+#Get UE Path Losses - fail no emulation
+@app.post("/start/5/3")
+async def start_test_5_3(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
     }
 
-    resp = requests.get(url, headers=headers, data=data)
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
 
-    resp_content = resp.json()
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
 
-    token = resp_content["access_token"]
+    #Acquisition of UE Path Losses information
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/path_losses", headers=headers, params={"supi":"202010000000001"})
 
-#Login - right
-@app.post("/start/7/1")
-async def start_test_7_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+#Get UE Serving Cell - pass
+@app.post("/start/5/4")
+async def start_test_5_4(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    #Acquisition of serving cell information
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/serving_cell", headers=headers, params={"supi":"202010000000001"})
+
+#Create QoS Subscription
+@app.post("/start/5/5")
+async def start_test_5_5(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    #Acquisition of QoS sustainability - qos subscription
+    qos_payload = {
+        "ipv4Addr": "10.0.0.2",
+        "notificationDestination": "http://localhost:80/api/v1/utils/session-with-qos/callback",
+        "snssai": {
+            "sst": 1,
+            "sd": "000001"
+        },
+        "dnn": "province1.mnc01.mcc202.gprs",
+        "qosReference": 9,
+        "altQoSReferences": [
+            0
+        ],
+        "usageThreshold": {
+            "duration": 0,
+            "totalVolume": 0,
+            "downlinkVolume": 0,
+            "uplinkVolume": 0
+        },
+        "qosMonInfo": {
+            "reqQosMonParams": [
+            "DOWNLINK"
+            ],
+            "repFreqs": [
+            "EVENT_TRIGGERED"
+            ],
+            "latThreshDl": 0,
+            "latThreshUl": 0,
+            "latThreshRp": 0,
+            "waitTime": 0,
+            "repPeriod": 0
+        }
+    }
+
+    requests.post(nef_base_url + "/nef/api/v1/3gpp-as-session-with-qos/v1/netapp/subscriptions",
+                headers=headers, params={"scsAsId":"netapp"}, data=json.dumps(qos_payload))
+
+#Login - pass
+@app.post("/start/6/1")
+async def start_test_6_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
     #NEF Login
     nef_base_url = f"http://{nef_ip}:{nef_port}"
@@ -397,8 +744,8 @@ async def start_test_7_1(configId: int, duration: int, nef_ip: str, nef_port: st
     token = resp_content["access_token"]
 
 #Create Monitoring Subscription - wrong payload
-@app.post("/start/7/2")
-async def start_test_7_2(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+@app.post("/start/6/2")
+async def start_test_6_2(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
     #NEF Login
     nef_base_url = f"http://{nef_ip}:{nef_port}"
@@ -429,8 +776,75 @@ async def start_test_7_2(configId: int, duration: int, nef_ip: str, nef_port: st
     requests.post(nef_base_url + "/nef/api/v1/3gpp-monitoring-event/v1/netapp/subscriptions",
                 headers=headers, data=json.dumps(monitoring_payload))
 
-#Login - right
-@app.post("/start/8/1")
+#Get UE Handovers - pass
+@app.post("/start/6/3")
+async def start_test_6_3(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/json"
+
+    #Acquisition of UE handover event
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/handovers", headers=headers, params={"supi":"202010000000001"})
+
+#Create QoS Subscription
+@app.post("/start/6/4")
+async def start_test_6_4(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    #Acquisition of QoS sustainability - qos subscription
+    qos_payload = {
+        "ipv4Addr": "10.0.0.1",
+        "notificationDestination": "http://localhost:80/api/v1/utils/session-with-qos/callback",
+        "snssai": {
+            "sst": 1,
+            "sd": "000001"
+        },
+        "dnn": "province1.mnc01.mcc202.gprs",
+        "qosReference": "nine",
+        "altQoSReferences": [
+            0
+        ],
+        "usageThreshold": {
+            "duration": 0,
+            "totalVolume": 0,
+            "downlinkVolume": 0,
+            "uplinkVolume": 0
+        },
+        "qosMonInfo": {
+            "reqQosMonParams": [
+            "DOWNLINK"
+            ],
+            "repFreqs": [
+            "EVENT_TRIGGERED"
+            ],
+            "latThreshDl": 0,
+            "latThreshUl": 0,
+            "latThreshRp": 0,
+            "waitTime": 0,
+            "repPeriod": 0
+        }
+    }
+
+    requests.post(nef_base_url + "/nef/api/v1/3gpp-as-session-with-qos/v1/netapp/subscriptions",
+                headers=headers, params={"scsAsId":"netapp"}, data=json.dumps(qos_payload))
+
+#Login - pass
+@app.post("/start/7/1")
 async def start_test_8_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
     #NEF Login
@@ -461,8 +875,8 @@ async def start_test_8_1(configId: int, duration: int, nef_ip: str, nef_port: st
     token = resp_content["access_token"]
 
 #Create Monitoring Subscription - wrong method used
-@app.post("/start/8/2")
-async def start_test_8_2(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+@app.post("/start/7/2")
+async def start_test_7_2(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
     #NEF Login
     nef_base_url = f"http://{nef_ip}:{nef_port}"
@@ -493,9 +907,106 @@ async def start_test_8_2(configId: int, duration: int, nef_ip: str, nef_port: st
     requests.get(nef_base_url + "/nef/api/v1/3gpp-monitoring-event/v1/netapp/subscriptions",
                 headers=headers, data=json.dumps(monitoring_payload))
 
-#Create Monitoring Subscription - no login
-@app.post("/start/9/2")
-async def start_test_9_2(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+#Create QoS Subscription - pass -already exists
+@app.post("/start/7/3")
+async def start_test_7_3(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    #Acquisition of QoS sustainability - qos subscription
+    qos_payload = {
+        "ipv4Addr": "10.0.0.1",
+        "notificationDestination": "http://localhost:80/api/v1/utils/session-with-qos/callback",
+        "snssai": {
+            "sst": 1,
+            "sd": "000001"
+        },
+        "dnn": "province1.mnc01.mcc202.gprs",
+        "qosReference": 9,
+        "altQoSReferences": [
+            0
+        ],
+        "usageThreshold": {
+            "duration": 0,
+            "totalVolume": 0,
+            "downlinkVolume": 0,
+            "uplinkVolume": 0
+        },
+        "qosMonInfo": {
+            "reqQosMonParams": [
+            "DOWNLINK"
+            ],
+            "repFreqs": [
+            "EVENT_TRIGGERED"
+            ],
+            "latThreshDl": 0,
+            "latThreshUl": 0,
+            "latThreshRp": 0,
+            "waitTime": 0,
+            "repPeriod": 0
+        }
+    }
+
+    requests.post(nef_base_url + "/nef/api/v1/3gpp-as-session-with-qos/v1/netapp/subscriptions",
+                headers=headers, params={"scsAsId":"netapp"}, data=json.dumps(qos_payload))
+
+#Login - pass
+@app.post("/start/8/1")
+async def start_test_8_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+    data = {
+        "grant_type": "",
+        "username": user_pass["username"],
+        "password": user_pass["password"],
+        "scope": "",
+        "client_id": "",
+        "client_secret": ""
+    }
+
+    resp = requests.post(url, headers=headers, data=data)
+
+    resp_content = resp.json()
+
+    token = resp_content["access_token"]
+
+#Create Monitoring Subscription - pass
+@app.post("/start/8/2")
+async def start_test_8_2(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
 
     #NEF Monitoring Subscription
     headers = CaseInsensitiveDict()
@@ -504,10 +1015,10 @@ async def start_test_9_2(configId: int, duration: int, nef_ip: str, nef_port: st
     headers["Content-Type"] = "application/json"
 
     monitoring_payload = {
-        "externalId": "10001@domain.com",
+        "externalId": "10002@domain.com",
         "notificationDestination": "http://localhost:80/api/v1/utils/monitoring/callback",
         "monitoringType": "LOCATION_REPORTING",
-        "maximumNumberOfReports": "one",
+        "maximumNumberOfReports": 1,
         "monitorExpireTime": "2023-03-09T13:18:19.495000+00:00",
         "maximumDetectionTime": 1,
         "reachabilityType": "DATA"
@@ -515,6 +1026,148 @@ async def start_test_9_2(configId: int, duration: int, nef_ip: str, nef_port: st
 
     requests.post(nef_base_url + "/nef/api/v1/3gpp-monitoring-event/v1/netapp/subscriptions",
                 headers=headers, data=json.dumps(monitoring_payload))
+
+#Get UE Serving Cell - pass
+@app.post("/start/8/3")
+async def start_test_8_3(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/start-loop", headers=headers, data=json.dumps({"supi":"202010000000002"}))
+
+    #Acquisition of serving cell information
+
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000002}/serving_cell", headers=headers, params={"supi":"202010000000002"})
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000002"}))
+
+#Get UE Handovers - pass
+@app.post("/start/8/4")
+async def start_test_8_4(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/json"
+
+    #Acquisition of UE handover event
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000002}/handovers", headers=headers, params={"supi":"202010000000002"})
+
+#Get UEs Location Acquisiton - pass
+@app.post("/start/8/5")
+async def start_test_8_5(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    requests.get(nef_base_url + f"/api/v1/UEs", headers=headers, params={"supi":"202010000000002"})
+
+#Get UE Path Losses - pass
+@app.post("/start/8/6")
+async def start_test_8_6(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/start-loop", headers=headers, data=json.dumps({"supi":"202010000000002"}))
+
+    #Acquisition of UE Path Losses information
+
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000002}/path_losses", headers=headers, params={"supi":"202010000000002"})
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000002"}))
+
+#Create QoS Subscription - fail wrong method
+@app.post("/start/8/7")
+async def start_test_8_7(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    #Acquisition of QoS sustainability - qos subscription
+    qos_payload = {
+        "ipv4Addr": "10.0.0.1",
+        "notificationDestination": "http://localhost:80/api/v1/utils/session-with-qos/callback",
+        "snssai": {
+            "sst": 1,
+            "sd": "000001"
+        },
+        "dnn": "province1.mnc01.mcc202.gprs",
+        "qosReference": 9,
+        "altQoSReferences": [
+            0
+        ],
+        "usageThreshold": {
+            "duration": 0,
+            "totalVolume": 0,
+            "downlinkVolume": 0,
+            "uplinkVolume": 0
+        },
+        "qosMonInfo": {
+            "reqQosMonParams": [
+            "DOWNLINK"
+            ],
+            "repFreqs": [
+            "EVENT_TRIGGERED"
+            ],
+            "latThreshDl": 0,
+            "latThreshUl": 0,
+            "latThreshRp": 0,
+            "waitTime": 0,
+            "repPeriod": 0
+        }
+    }
+
+    requests.get(nef_base_url + "/nef/api/v1/3gpp-as-session-with-qos/v1/netapp/subscriptions",
+                headers=headers, params={"scsAsId":"netapp"}, data=json.dumps(qos_payload))
 
 
 @app.get("/status")
