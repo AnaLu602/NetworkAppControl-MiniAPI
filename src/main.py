@@ -23,7 +23,6 @@ def get_db():
 
 def get_token(url, user_pass):
     
-
     headers = CaseInsensitiveDict()
     headers["accept"] = "application/json"
     headers["Content-Type"] = "application/x-www-form-urlencoded"
@@ -66,8 +65,9 @@ async def config_stream(config: schemas.StreamConfig,
     response.headers["Location"] = f"/configStream/{stream.id}"
     return stream.id
 
-@app.post("/start")
-async def start_test(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+@app.post("/start/template")
+async def start_test_template(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
     #NEF Login
     nef_base_url = f"http://{nef_ip}:{nef_port}"
@@ -112,15 +112,15 @@ async def start_test(configId: int, duration: int, nef_ip: str, nef_port: str, n
 
     #Acquisition of serving cell information
 
-    requests.get(nef_base_url + f"/api/v1/UEs/{202010000000001}/serving_cell", headers=headers, params={"supi":"202010000000001"})
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/serving_cell", headers=headers, params={"supi":"202010000000001"})
 
     #Acquisition of UE Reference Signal Received Power (RSRP) information
 
-    requests.get(nef_base_url + f"/api/v1/UEs/{202010000000001}/rsrps", headers=headers, params={"supi":"202010000000001"})
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/rsrps", headers=headers, params={"supi":"202010000000001"})
 
     #Acquisition of UE path loss
 
-    requests.get(nef_base_url + f"/api/v1/UEs/{202010000000001}/path_losses", headers=headers, params={"supi":"202010000000001"})
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/path_losses", headers=headers, params={"supi":"202010000000001"})
 
     #End Loop
 
@@ -166,10 +166,355 @@ async def start_test(configId: int, duration: int, nef_ip: str, nef_port: str, n
 
     #Acquisition of UE handover event
     
-    requests.get(nef_base_url + f"/api/v1/UEs/{202010000000002}/handovers", headers=headers, params={"supi":"202010000000002"})
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000002}/handovers", headers=headers, params={"supi":"202010000000002"})
 
     return JSONResponse(content="Done", status_code=200)
-     
+
+
+
+#Login - Right
+@app.post("/start/1/1")
+async def start_test_1_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+    data = {
+        "grant_type": "",
+        "username": user_pass["username"],
+        "password": user_pass["password"],
+        "scope": "",
+        "client_id": "",
+        "client_secret": ""
+    }
+
+    resp = requests.post(url, headers=headers, data=data)
+
+    resp_content = resp.json()
+
+    token = resp_content["access_token"]
+
+#Create Monitoring Subscription - Right
+@app.post("/start/1/2")
+async def start_test_1_2(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    #NEF Monitoring Subscription
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    monitoring_payload = {
+        "externalId": "10001@domain.com",
+        "notificationDestination": "http://localhost:80/api/v1/utils/monitoring/callback",
+        "monitoringType": "LOCATION_REPORTING",
+        "maximumNumberOfReports": 1,
+        "monitorExpireTime": "2023-03-09T13:18:19.495000+00:00",
+        "maximumDetectionTime": 1,
+        "reachabilityType": "DATA"
+    }
+
+    requests.post(nef_base_url + "/nef/api/v1/3gpp-monitoring-event/v1/netapp/subscriptions",
+                headers=headers, data=json.dumps(monitoring_payload))
+
+#Login - pass wrong credentials
+@app.post("/start/2/1")
+async def start_test_2_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+    data = {
+        "grant_type": "",
+        "username": user_pass["username"],
+        "password": user_pass["password"],
+        "scope": "",
+        "client_id": "",
+        "client_secret": ""
+    }
+
+    resp = requests.post(url, headers=headers, data=data)
+
+    resp_content = resp.json()
+
+    token = resp_content["access_token"]
+
+#Login - wrong implementation
+@app.post("/start/3/1")
+async def start_test_3_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_pass,
+        "password": nef_username
+    }
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+    data = {
+        "grant_type": "",
+        "username": user_pass["username"],
+        "password": user_pass["password"],
+        "scope": "",
+        "client_id": "",
+        "client_secret": ""
+    }
+
+    resp = requests.post(url, headers=headers, data=data)
+
+    resp_content = resp.json()
+
+    token = resp_content["access_token"]
+
+#Login - didnt login
+@app.post("/start/4/1")
+async def start_test_4_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+    pass
+
+#Login - right
+@app.post("/start/5/1")
+async def start_test_5_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+    data = {
+        "grant_type": "",
+        "username": user_pass["username"],
+        "password": user_pass["password"],
+        "scope": "",
+        "client_id": "",
+        "client_secret": ""
+    }
+
+    resp = requests.post(url, headers=headers, data=data)
+
+    resp_content = resp.json()
+
+    token = resp_content["access_token"]
+
+#Login - wrong method used
+@app.post("/start/6/1")
+async def start_test_6_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+    data = {
+        "grant_type": "",
+        "username": user_pass["username"],
+        "password": user_pass["password"],
+        "scope": "",
+        "client_id": "",
+        "client_secret": ""
+    }
+
+    resp = requests.get(url, headers=headers, data=data)
+
+    resp_content = resp.json()
+
+    token = resp_content["access_token"]
+
+#Login - right
+@app.post("/start/7/1")
+async def start_test_7_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+    data = {
+        "grant_type": "",
+        "username": user_pass["username"],
+        "password": user_pass["password"],
+        "scope": "",
+        "client_id": "",
+        "client_secret": ""
+    }
+
+    resp = requests.post(url, headers=headers, data=data)
+
+    resp_content = resp.json()
+
+    token = resp_content["access_token"]
+
+#Create Monitoring Subscription - wrong payload
+@app.post("/start/7/2")
+async def start_test_7_2(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    #NEF Monitoring Subscription
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    monitoring_payload = {
+        "externalId": "10001@domain.com",
+        "notificationDestination": "http://localhost:80/api/v1/utils/monitoring/callback",
+        "monitoringType": "LOCATION_REPORTING",
+        "maximumNumberOfReports": "one",
+        "monitorExpireTime": "2023-03-09T13:18:19.495000+00:00",
+        "maximumDetectionTime": 1,
+        "reachabilityType": "DATA"
+    }
+
+    requests.post(nef_base_url + "/nef/api/v1/3gpp-monitoring-event/v1/netapp/subscriptions",
+                headers=headers, data=json.dumps(monitoring_payload))
+
+#Login - right
+@app.post("/start/8/1")
+async def start_test_8_1(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+    data = {
+        "grant_type": "",
+        "username": user_pass["username"],
+        "password": user_pass["password"],
+        "scope": "",
+        "client_id": "",
+        "client_secret": ""
+    }
+
+    resp = requests.post(url, headers=headers, data=data)
+
+    resp_content = resp.json()
+
+    token = resp_content["access_token"]
+
+#Create Monitoring Subscription - wrong method used
+@app.post("/start/8/2")
+async def start_test_8_2(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    #NEF Monitoring Subscription
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    monitoring_payload = {
+        "externalId": "10001@domain.com",
+        "notificationDestination": "http://localhost:80/api/v1/utils/monitoring/callback",
+        "monitoringType": "LOCATION_REPORTING",
+        "maximumNumberOfReports": "one",
+        "monitorExpireTime": "2023-03-09T13:18:19.495000+00:00",
+        "maximumDetectionTime": 1,
+        "reachabilityType": "DATA"
+    }
+
+    requests.get(nef_base_url + "/nef/api/v1/3gpp-monitoring-event/v1/netapp/subscriptions",
+                headers=headers, data=json.dumps(monitoring_payload))
+
+#Create Monitoring Subscription - no login
+@app.post("/start/9/2")
+async def start_test_9_2(configId: int, duration: int, nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Monitoring Subscription
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    monitoring_payload = {
+        "externalId": "10001@domain.com",
+        "notificationDestination": "http://localhost:80/api/v1/utils/monitoring/callback",
+        "monitoringType": "LOCATION_REPORTING",
+        "maximumNumberOfReports": "one",
+        "monitorExpireTime": "2023-03-09T13:18:19.495000+00:00",
+        "maximumDetectionTime": 1,
+        "reachabilityType": "DATA"
+    }
+
+    requests.post(nef_base_url + "/nef/api/v1/3gpp-monitoring-event/v1/netapp/subscriptions",
+                headers=headers, data=json.dumps(monitoring_payload))
 
 
 @app.get("/status")
