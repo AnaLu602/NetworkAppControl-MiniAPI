@@ -440,9 +440,34 @@ async def start_test_3_3(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 
     requests.get(nef_base_url + f"/api/v1/UEs", headers=headers, params={"supi":"202010000000001"})
 
-#Get UE Path Losses - fail login doesnt work
+#Get UE Reference Signal Received Power (RSRP) - fail login doesnt work
 @app.post("/start/3/4")
 async def start_test_3_4(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_pass,
+        "password": nef_username
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/start-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
+
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/rsrps", headers=headers, params={"supi":"202010000000001"})
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
+
+#Get UE Path Losses - fail login doesnt work
+@app.post("/start/3/5")
+async def start_test_3_5(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
     #NEF Login
     nef_base_url = f"http://{nef_ip}:{nef_port}"
@@ -635,7 +660,7 @@ async def start_test_5_3(nef_ip: str, nef_port: str, nef_username: str, nef_pass
     #Acquisition of UE Path Losses information
     requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/path_losses", headers=headers, params={"supi":"202010000000001"})
 
-#Get UE Serving Cell - pass
+#Get UE Serving Cell - fail no emulation
 @app.post("/start/5/4")
 async def start_test_5_4(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
@@ -657,9 +682,31 @@ async def start_test_5_4(nef_ip: str, nef_port: str, nef_username: str, nef_pass
     #Acquisition of serving cell information
     requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/serving_cell", headers=headers, params={"supi":"202010000000001"})
 
-#Create QoS Subscription
+#Get UE Reference Signal Received Power (RSRP) - fail no emulation
 @app.post("/start/5/5")
 async def start_test_5_5(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    #Acquisition of RSRP information
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/rsrps", headers=headers, params={"supi":"202010000000001"})
+
+#Create QoS Subscription
+@app.post("/start/5/6")
+async def start_test_5_6(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
     #NEF Login
     nef_base_url = f"http://{nef_ip}:{nef_port}"
@@ -1114,9 +1161,36 @@ async def start_test_8_6(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 
     requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000002"}))
 
-#Create QoS Subscription - fail wrong method
+#Get UE Reference Signal Received Power (RSRP) - pass
 @app.post("/start/8/7")
 async def start_test_8_7(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/start-loop", headers=headers, data=json.dumps({"supi":"202010000000002"}))
+
+    #Acquisition of UE RSRP information
+
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000002}/rsrps", headers=headers, params={"supi":"202010000000002"})
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000002"}))
+
+#Create QoS Subscription - fail wrong method
+@app.post("/start/8/8")
+async def start_test_8_8(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
     #NEF Login
     nef_base_url = f"http://{nef_ip}:{nef_port}"
@@ -1169,7 +1243,6 @@ async def start_test_8_7(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 
     requests.get(nef_base_url + "/nef/api/v1/3gpp-as-session-with-qos/v1/netapp/subscriptions",
                 headers=headers, params={"scsAsId":"netapp"}, data=json.dumps(qos_payload))
-
 
 #Login - pass
 @app.post("/start/9/1")
