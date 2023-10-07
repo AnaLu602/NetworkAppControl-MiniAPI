@@ -92,7 +92,7 @@ async def start_test_1_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass
         "client_secret": ""
     }
 
-    resp = requests.post(url, headers=headers, data=data)
+    resp = requests.post(nef_base_url, headers=headers, data=data)
 
     resp_content = resp.json()
 
@@ -239,46 +239,41 @@ async def start_test_1_5(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 @app.post("/start/2/1")
 async def start_test_2_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
-    #NEF Login
-    nef_base_url = f"http://{nef_ip}:{nef_port}"
+    try:
+        #NEF Login
+        nef_base_url = f"http://{nef_ip}:{nef_port}"
 
-    user_pass = {
-        "username": nef_username,
-        "password": nef_pass
-    }
+        user_pass = {
+            "username": nef_username,
+            "password": nef_pass
+        }
 
-    headers = CaseInsensitiveDict()
-    headers["accept"] = "application/json"
-    headers["Content-Type"] = "application/x-www-form-urlencoded"
+        headers = CaseInsensitiveDict()
+        headers["accept"] = "application/json"
+        headers["Content-Type"] = "application/x-www-form-urlencoded"
 
-    data = {
-        "grant_type": "",
-        "username": user_pass["username"],
-        "password": user_pass["password"],
-        "scope": "",
-        "client_id": "",
-        "client_secret": ""
-    }
+        data = {
+            "grant_type": "",
+            "username": user_pass["username"],
+            "password": user_pass["password"],
+            "scope": "",
+            "client_id": "",
+            "client_secret": ""
+        }
 
-    resp = requests.post(url, headers=headers, data=data)
+        resp = requests.post(nef_base_url, headers=headers, data=data)
 
-    resp_content = resp.json()
+        resp_content = resp.json()
 
-    token = resp_content["access_token"]
+        token = resp_content["access_token"]
+    except:
+        print("Wrong login")
 
 #Create Monitoring Subscription - fail login wrong credentials
 @app.post("/start/2/2")
 async def start_test_2_2(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
-    #NEF Login
-    nef_base_url = f"http://{nef_ip}:{nef_port}"
-
-    user_pass = {
-        "username": nef_username,
-        "password": nef_pass
-    }
-
-    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+    key = "test"
 
     #NEF Monitoring Subscription
     headers = CaseInsensitiveDict()
@@ -303,15 +298,7 @@ async def start_test_2_2(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 @app.post("/start/2/3")
 async def start_test_2_3(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
-    #NEF Login
-    nef_base_url = f"http://{nef_ip}:{nef_port}"
-
-    user_pass = {
-        "username": nef_username,
-        "password": nef_pass
-    }
-
-    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+    key = "test"
 
     headers = CaseInsensitiveDict()
     headers["accept"] = "application/json"
@@ -359,46 +346,41 @@ async def start_test_2_3(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 @app.post("/start/3/1")
 async def start_test_3_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
-    #NEF Login
-    nef_base_url = f"http://{nef_ip}:{nef_port}"
+    try:
+        #NEF Login
+        nef_base_url = f"http://{nef_ip}:{nef_port}"
 
-    user_pass = {
-        "username": nef_pass,
-        "password": nef_username
-    }
+        user_pass = {
+            "username": nef_pass,
+            "password": nef_username
+        }
 
-    headers = CaseInsensitiveDict()
-    headers["accept"] = "application/json"
-    headers["Content-Type"] = "application/x-www-form-urlencoded"
+        headers = CaseInsensitiveDict()
+        headers["accept"] = "application/json"
+        headers["Content-Type"] = "application/x-www-form-urlencoded"
 
-    data = {
-        "grant_type": "",
-        "username": user_pass["username"],
-        "password": user_pass["password"],
-        "scope": "",
-        "client_id": "",
-        "client_secret": ""
-    }
+        data = {
+            "grant_type": "",
+            "username": user_pass["username"],
+            "password": user_pass["password"],
+            "scope": "",
+            "client_id": "",
+            "client_secret": ""
+        }
 
-    resp = requests.post(url, headers=headers, data=data)
+        resp = requests.post(nef_base_url, headers=headers, data=data)
 
-    resp_content = resp.json()
+        resp_content = resp.json()
 
-    token = resp_content["access_token"]
+        token = resp_content["access_token"]
+    except:
+        print("Wrong login")
 
 #Create Monitoring Subscription - fail login doesnt work
 @app.post("/start/3/2")
 async def start_test_3_2(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
-    #NEF Login
-    nef_base_url = f"http://{nef_ip}:{nef_port}"
-
-    user_pass = {
-        "username": nef_pass,
-        "password": nef_username
-    }
-
-    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+    key = "test2"
 
     #NEF Monitoring Subscription
     headers = CaseInsensitiveDict()
@@ -423,15 +405,7 @@ async def start_test_3_2(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 @app.post("/start/3/3")
 async def start_test_3_3(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
-    #NEF Login
-    nef_base_url = f"http://{nef_ip}:{nef_port}"
-
-    user_pass = {
-        "username": nef_pass,
-        "password": nef_username
-    }
-
-    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+    key = "test2"
 
     headers = CaseInsensitiveDict()
     headers["accept"] = "application/json"
@@ -444,15 +418,7 @@ async def start_test_3_3(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 @app.post("/start/3/4")
 async def start_test_3_4(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
-    #NEF Login
-    nef_base_url = f"http://{nef_ip}:{nef_port}"
-
-    user_pass = {
-        "username": nef_pass,
-        "password": nef_username
-    }
-
-    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+    key = "test2"
 
     headers = CaseInsensitiveDict()
     headers["accept"] = "application/json"
@@ -469,15 +435,7 @@ async def start_test_3_4(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 @app.post("/start/3/5")
 async def start_test_3_5(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
-    #NEF Login
-    nef_base_url = f"http://{nef_ip}:{nef_port}"
-
-    user_pass = {
-        "username": nef_pass,
-        "password": nef_username
-    }
-
-    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+    key = "test2"
 
     headers = CaseInsensitiveDict()
     headers["accept"] = "application/json"
@@ -495,6 +453,8 @@ async def start_test_3_5(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 #Create Monitoring Subscription - fail login doesnt exist
 @app.post("/start/4/1")
 async def start_test_4_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
 
     #NEF Monitoring Subscription
     headers = CaseInsensitiveDict()
@@ -518,6 +478,8 @@ async def start_test_4_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 @app.post("/start/4/2")
 async def start_test_4_2(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
     headers = CaseInsensitiveDict()
     headers["accept"] = "application/json"
     headers["Content-Type"] = "application/json"
@@ -534,6 +496,8 @@ async def start_test_4_2(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 @app.post("/start/4/3")
 async def start_test_4_3(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
     headers = CaseInsensitiveDict()
     headers["accept"] = "application/json"
     headers["Content-Type"] = "application/json"
@@ -544,6 +508,8 @@ async def start_test_4_3(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 #Create QoS Subscription - fail login doesnt exist
 @app.post("/start/4/4")
 async def start_test_4_4(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
 
     headers = CaseInsensitiveDict()
     headers["accept"] = "application/json"
@@ -611,7 +577,7 @@ async def start_test_5_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass
         "client_secret": ""
     }
 
-    resp = requests.post(url, headers=headers, data=data)
+    resp = requests.post(nef_base_url, headers=headers, data=data)
 
     resp_content = resp.json()
 
@@ -785,7 +751,7 @@ async def start_test_6_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass
         "client_secret": ""
     }
 
-    resp = requests.post(url, headers=headers, data=data)
+    resp = requests.post(nef_base_url, headers=headers, data=data)
 
     resp_content = resp.json()
 
@@ -916,7 +882,7 @@ async def start_test_8_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass
         "client_secret": ""
     }
 
-    resp = requests.post(url, headers=headers, data=data)
+    resp = requests.post(nef_base_url, headers=headers, data=data)
 
     resp_content = resp.json()
 
@@ -1036,7 +1002,7 @@ async def start_test_8_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass
         "client_secret": ""
     }
 
-    resp = requests.post(url, headers=headers, data=data)
+    resp = requests.post(nef_base_url, headers=headers, data=data)
 
     resp_content = resp.json()
 
@@ -1269,7 +1235,7 @@ async def start_test_9_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass
         "client_secret": ""
     }
 
-    resp = requests.post(url, headers=headers, data=data)
+    resp = requests.post(nef_base_url, headers=headers, data=data)
 
     resp_content = resp.json()
 
