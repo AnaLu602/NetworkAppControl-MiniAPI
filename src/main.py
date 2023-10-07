@@ -92,11 +92,7 @@ async def start_test_1_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass
         "client_secret": ""
     }
 
-    resp = requests.post(nef_base_url, headers=headers, data=data)
-
-    resp_content = resp.json()
-
-    token = resp_content["access_token"]
+    resp = requests.post(nef_base_url+"/api/v1/login/access-token", headers=headers, data=data)
 
 #Create Monitoring Subscription - pass
 @app.post("/start/1/2")
@@ -239,40 +235,34 @@ async def start_test_1_5(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 @app.post("/start/2/1")
 async def start_test_2_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
-    try:
-        #NEF Login
-        nef_base_url = f"http://{nef_ip}:{nef_port}"
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
 
-        user_pass = {
-            "username": nef_username,
-            "password": nef_pass
-        }
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
 
-        headers = CaseInsensitiveDict()
-        headers["accept"] = "application/json"
-        headers["Content-Type"] = "application/x-www-form-urlencoded"
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/x-www-form-urlencoded"
 
-        data = {
-            "grant_type": "",
-            "username": user_pass["username"],
-            "password": user_pass["password"],
-            "scope": "",
-            "client_id": "",
-            "client_secret": ""
-        }
+    data = {
+        "grant_type": "",
+        "username": user_pass["username"],
+        "password": user_pass["password"],
+        "scope": "",
+        "client_id": "",
+        "client_secret": ""
+    }
 
-        resp = requests.post(nef_base_url, headers=headers, data=data)
-
-        resp_content = resp.json()
-
-        token = resp_content["access_token"]
-    except:
-        print("Wrong login")
+    resp = requests.post(nef_base_url + "/api/v1/login/access-token", headers=headers, data=data)
 
 #Create Monitoring Subscription - fail login wrong credentials
 @app.post("/start/2/2")
 async def start_test_2_2(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
     key = "test"
 
     #NEF Monitoring Subscription
@@ -298,6 +288,7 @@ async def start_test_2_2(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 @app.post("/start/2/3")
 async def start_test_2_3(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
     key = "test"
 
     headers = CaseInsensitiveDict()
@@ -346,40 +337,34 @@ async def start_test_2_3(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 @app.post("/start/3/1")
 async def start_test_3_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
-    try:
-        #NEF Login
-        nef_base_url = f"http://{nef_ip}:{nef_port}"
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
 
-        user_pass = {
-            "username": nef_pass,
-            "password": nef_username
-        }
+    user_pass = {
+        "username": nef_pass,
+        "password": nef_username
+    }
 
-        headers = CaseInsensitiveDict()
-        headers["accept"] = "application/json"
-        headers["Content-Type"] = "application/x-www-form-urlencoded"
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Content-Type"] = "application/x-www-form-urlencoded"
 
-        data = {
-            "grant_type": "",
-            "username": user_pass["username"],
-            "password": user_pass["password"],
-            "scope": "",
-            "client_id": "",
-            "client_secret": ""
-        }
+    data = {
+        "grant_type": "",
+        "username": user_pass["username"],
+        "password": user_pass["password"],
+        "scope": "",
+        "client_id": "",
+        "client_secret": ""
+    }
 
-        resp = requests.post(nef_base_url, headers=headers, data=data)
-
-        resp_content = resp.json()
-
-        token = resp_content["access_token"]
-    except:
-        print("Wrong login")
+    resp = requests.post(nef_base_url + "/api/v1/login/access-token", headers=headers, data=data)
 
 #Create Monitoring Subscription - fail login doesnt work
 @app.post("/start/3/2")
 async def start_test_3_2(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
     key = "test2"
 
     #NEF Monitoring Subscription
@@ -405,6 +390,7 @@ async def start_test_3_2(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 @app.post("/start/3/3")
 async def start_test_3_3(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
     key = "test2"
 
     headers = CaseInsensitiveDict()
@@ -418,6 +404,7 @@ async def start_test_3_3(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 @app.post("/start/3/4")
 async def start_test_3_4(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
     key = "test2"
 
     headers = CaseInsensitiveDict()
@@ -435,6 +422,7 @@ async def start_test_3_4(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 @app.post("/start/3/5")
 async def start_test_3_5(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
     key = "test2"
 
     headers = CaseInsensitiveDict()
@@ -577,7 +565,7 @@ async def start_test_5_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass
         "client_secret": ""
     }
 
-    resp = requests.post(nef_base_url, headers=headers, data=data)
+    resp = requests.post(nef_base_url + "/api/v1/login/access-token", headers=headers, data=data)
 
     resp_content = resp.json()
 
@@ -670,9 +658,31 @@ async def start_test_5_5(nef_ip: str, nef_port: str, nef_username: str, nef_pass
     #Acquisition of RSRP information
     requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/rsrps", headers=headers, params={"supi":"202010000000001"})
 
-#Create QoS Subscription
+#Get UE Handovers - fail no emulation
 @app.post("/start/5/6")
 async def start_test_5_6(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
+    headers = CaseInsensitiveDict()
+    headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
+    headers["Content-Type"] = "application/json"
+
+    #Acquisition of UE handover event
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000002}/handovers", headers=headers, params={"supi":"202010000000002"})
+
+#Create QoS Subscription
+@app.post("/start/5/7")
+async def start_test_5_7(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
     #NEF Login
     nef_base_url = f"http://{nef_ip}:{nef_port}"
@@ -751,7 +761,7 @@ async def start_test_6_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass
         "client_secret": ""
     }
 
-    resp = requests.post(nef_base_url, headers=headers, data=data)
+    resp = requests.post(nef_base_url + "/api/v1/login/access-token", headers=headers, data=data)
 
     resp_content = resp.json()
 
@@ -794,12 +804,27 @@ async def start_test_6_2(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 @app.post("/start/6/3")
 async def start_test_6_3(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
     headers = CaseInsensitiveDict()
     headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
     headers["Content-Type"] = "application/json"
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/start-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
 
     #Acquisition of UE handover event
     requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/handovers", headers=headers, params={"supi":"202010000000001"})
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
 
 #Create QoS Subscription
 @app.post("/start/6/4")
@@ -859,7 +884,7 @@ async def start_test_6_4(nef_ip: str, nef_port: str, nef_username: str, nef_pass
 
 #Login - pass
 @app.post("/start/7/1")
-async def start_test_8_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
+async def start_test_7_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
     #NEF Login
     nef_base_url = f"http://{nef_ip}:{nef_port}"
@@ -882,7 +907,7 @@ async def start_test_8_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass
         "client_secret": ""
     }
 
-    resp = requests.post(nef_base_url, headers=headers, data=data)
+    resp = requests.post(nef_base_url + "/api/v1/login/access-token", headers=headers, data=data)
 
     resp_content = resp.json()
 
@@ -1002,7 +1027,7 @@ async def start_test_8_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass
         "client_secret": ""
     }
 
-    resp = requests.post(nef_base_url, headers=headers, data=data)
+    resp = requests.post(nef_base_url + "/api/v1/login/access-token", headers=headers, data=data)
 
     resp_content = resp.json()
 
@@ -1060,24 +1085,39 @@ async def start_test_8_3(nef_ip: str, nef_port: str, nef_username: str, nef_pass
     headers["Authorization"] = "Bearer " + key
     headers["Content-Type"] = "application/json"
 
-    requests.post(nef_base_url + f"/api/v1/ue_movement/start-loop", headers=headers, data=json.dumps({"supi":"202010000000002"}))
+    requests.post(nef_base_url + f"/api/v1/ue_movement/start-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
 
     #Acquisition of serving cell information
 
-    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000002}/serving_cell", headers=headers, params={"supi":"202010000000002"})
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/serving_cell", headers=headers, params={"supi":"202010000000001"})
 
-    requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000002"}))
+    requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
 
 #Get UE Handovers - pass
 @app.post("/start/8/4")
 async def start_test_8_4(nef_ip: str, nef_port: str, nef_username: str, nef_pass: str):
 
+    #NEF Login
+    nef_base_url = f"http://{nef_ip}:{nef_port}"
+
+    user_pass = {
+        "username": nef_username,
+        "password": nef_pass
+    }
+
+    key = get_token(nef_base_url+"/api/v1/login/access-token", user_pass)
+
     headers = CaseInsensitiveDict()
     headers["accept"] = "application/json"
+    headers["Authorization"] = "Bearer " + key
     headers["Content-Type"] = "application/json"
 
+    requests.post(nef_base_url + f"/api/v1/ue_movement/start-loop", headers=headers, data=json.dumps({"supi":"202010000000003"}))
+
     #Acquisition of UE handover event
-    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000002}/handovers", headers=headers, params={"supi":"202010000000002"})
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000003}/handovers", headers=headers, params={"supi":"202010000000003"})
+
+    requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000003"}))
 
 #Get UEs Location Acquisiton - pass
 @app.post("/start/8/5")
@@ -1119,13 +1159,13 @@ async def start_test_8_6(nef_ip: str, nef_port: str, nef_username: str, nef_pass
     headers["Authorization"] = "Bearer " + key
     headers["Content-Type"] = "application/json"
 
-    requests.post(nef_base_url + f"/api/v1/ue_movement/start-loop", headers=headers, data=json.dumps({"supi":"202010000000002"}))
+    requests.post(nef_base_url + f"/api/v1/ue_movement/start-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
 
     #Acquisition of UE Path Losses information
 
-    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000002}/path_losses", headers=headers, params={"supi":"202010000000002"})
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/path_losses", headers=headers, params={"supi":"202010000000001"})
 
-    requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000002"}))
+    requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
 
 #Get UE Reference Signal Received Power (RSRP) - pass
 @app.post("/start/8/7")
@@ -1146,13 +1186,13 @@ async def start_test_8_7(nef_ip: str, nef_port: str, nef_username: str, nef_pass
     headers["Authorization"] = "Bearer " + key
     headers["Content-Type"] = "application/json"
 
-    requests.post(nef_base_url + f"/api/v1/ue_movement/start-loop", headers=headers, data=json.dumps({"supi":"202010000000002"}))
+    requests.post(nef_base_url + f"/api/v1/ue_movement/start-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
 
     #Acquisition of UE RSRP information
 
-    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000002}/rsrps", headers=headers, params={"supi":"202010000000002"})
+    requests.get(nef_base_url + f"/test/api/v1/UEs/{202010000000001}/rsrps", headers=headers, params={"supi":"202010000000001"})
 
-    requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000002"}))
+    requests.post(nef_base_url + f"/api/v1/ue_movement/stop-loop", headers=headers, data=json.dumps({"supi":"202010000000001"}))
 
 #Create QoS Subscription - fail wrong method
 @app.post("/start/8/8")
@@ -1235,12 +1275,11 @@ async def start_test_9_1(nef_ip: str, nef_port: str, nef_username: str, nef_pass
         "client_secret": ""
     }
 
-    resp = requests.post(nef_base_url, headers=headers, data=data)
+    resp = requests.post(nef_base_url + "/api/v1/login/access-token", headers=headers, data=data)
 
     resp_content = resp.json()
 
     token = resp_content["access_token"]
-
 
 #Test generating values
 @app.post("/start/9/2")
